@@ -1,0 +1,21 @@
+<div class="container-fluid" style="padding: 10px; min-height: 350px">
+  <h3>
+    <i class="fa fa-shopping-cart"></i> Marker Mood
+    <small style="font-size: 0.7em; float: right"
+      ><span class="badge bg-success">Buy Mood: {{ marketMood?.buyMood }}</span>
+      |
+      <span class="badge bg-danger"
+        >Sell Mood: {{ marketMood?.sellMood }}</span
+      ></small
+    >
+  </h3>
+
+  <app-loading *ngIf="loading"></app-loading>
+  <app-grid-table
+    [dataSource]="marketMood?.opportunities"
+    [actions]="actions"
+    [actionsLabel]="'Actions'"
+    [columns]="columns"
+  >
+  </app-grid-table>
+</div>

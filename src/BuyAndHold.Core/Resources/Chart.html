@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Candlestick Chart with Trade Markers and Cumulative Gains</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        #candlestickChart {
+            flex: 1;
+            width: 100%;
+        }
+
+        #pagination {
+            padding: 10px;
+            text-align: center;
+            background: #f1f1f1;
+        }
+
+            #pagination button {
+                margin: 0 5px;
+            }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="candlestickChart"></canvas>
+        <div id="pagination">
+            <button id="prevPage" onclick="prevPage()">Previous</button>
+            <span id="pageInfo"></span>
+            <button id="nextPage" onclick="nextPage()">Next</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('candlestickChart');
+        const ctx = canvas.getContext('2d');
+
+        const data = [
+            #DATA_HERE#
+        ];
+
+        let currentPage = 1;
+        const recordsPerPage = 50;
+        const totalPages = Math.ceil(data.length / recordsPerPage);
+
+        function drawChart(page) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const start = (page - 1) * recordsPerPage;
+            const end = start + recordsPerPage;
+            const pageData = data.slice(start, end);
+
+            const chartHeight = canvas.height;
+            const chartWidth = canvas.width;
+            const padding = 50;
+            const candleWidth = (chartWidth - padding * 2) / pageData.length;
+            const maxPrice = Math.max(...pageData.map(d => d.high));
+            const minPrice = Math.min(...pageData.map(d => d.low));
+
+            // Draw y-axis (prices)
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, chartHeight - padding);
+            ctx.stroke();
+
+            for (let i = 0; i <= 5; i++) {
+                const price = minPrice + i * (maxPrice - minPrice) / 5;
+                const y = chartHeight - padding - (chartHeight - padding * 2) * (price - minPrice) / (maxPrice - minPrice);
+                ctx.fillText(price.toFixed(2), 10, y);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(chartWidth - padding, y);
+                ctx.strokeStyle = '#ccc';
+                ctx.stroke();
+            }
+
+            // Draw x-axis (dates)
+            ctx.beginPath();
+            ctx.moveTo(padding, chartHeight - padding);
+            ctx.lineTo(chartWidth - padding, chartHeight - padding);
+            ctx.stroke();
+
+            pageData.forEach((d, i) => {
+                const x = padding + i * candleWidth + candleWidth / 2;
+                const highY = chartHeight - padding - (chartHeight - padding * 2) * (d.high - minPrice) / (maxPrice - minPrice);
+                const lowY = chartHeight - padding - (chartHeight - padding * 2) * (d.low - minPrice) / (maxPrice - minPrice);
+                const openY = chartHeight - padding - (chartHeight - padding * 2) * (d.open - minPrice) / (maxPrice - minPrice);
+                const closeY = chartHeight - padding - (chartHeight - padding * 2) * (d.close - minPrice) / (maxPrice - minPrice);
+
+                // Draw candlesticks
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.rect(x - candleWidth / 4, Math.min(openY, closeY), candleWidth / 2, Math.abs(openY - closeY));
+                ctx.fillStyle = d.close > d.open ? 'green' : 'red';
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+                // Draw buy marker
+                if (d.buyPrice !== undefined) {
+                    const buyY = chartHeight - padding - (chartHeight - padding * 2) * (d.buyPrice - minPrice) / (maxPrice - minPrice);
+                    ctx.beginPath();
+                    ctx.arc(x, buyY, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'blue';
+                    ctx.fill();
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+                    ctx.fillText(`Buy: ${d.buyPrice.toFixed(2)}`, x + 10, buyY + 3);
+                }
+
+                // Draw sell marker
+                if (d.sellPrice !== undefined) {
+                    const sellY = chartHeight - padding - (chartHeight - padding * 2) * (d.sellPrice - minPrice) / (maxPrice - minPrice);
+                    ctx.beginPath();
+                    ctx.arc(x, sellY, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'red';
+                    ctx.fill();
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
+                    ctx.fillText(`Sell: ${d.sellPrice.toFixed(2)}`, x + 10, sellY + 3);
+                }
+
+                // Display gain below each date
+                const gainY = chartHeight - padding + 30;
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(`Gain: ${d.gain.toFixed(2)}`, x - 20, gainY);
+                ctx.font = 'normal 12px Arial';
+                ctx.fillText(d.date, x - 20, chartHeight - padding + 20);
+            });
+
+            // Update pagination info
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                drawChart(currentPage);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                drawChart(currentPage);
+            }
+        }
+
+        // Initialize the canvas size and draw the first page
+        function initializeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - document.getElementById('pagination').offsetHeight;
+            drawChart(currentPage);
+        }
+
+        window.addEventListener('resize', initializeCanvas);
+        initializeCanvas();
+    </script>
+</body>
+</html>

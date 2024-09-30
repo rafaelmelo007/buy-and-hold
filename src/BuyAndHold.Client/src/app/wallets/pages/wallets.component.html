@@ -1,0 +1,53 @@
+<div class="container-fluid" style="padding: 10px">
+  <h3><i class="fa fa-briefcase"></i> Wallets</h3>
+
+  <div class="row" *ngIf="wallets">
+    <div class="col-9">
+      <select
+        class="form-control"
+        [(ngModel)]="selectedWalletId"
+        (change)="changeWallet()"
+      >
+        @for(wallet of wallets; track wallet) {
+        <option
+          [value]="wallet.walletId"
+          [selected]="wallet.walletId == selectedWalletId"
+        >
+          {{ wallet.name }} {{ getDescription(wallet) }}
+        </option>
+        }
+        <option [value]="0">- New Wallet -</option>
+      </select>
+    </div>
+    <div class="col-3">
+      <a
+        href="javascript:;"
+        class="btn bg-primary"
+        style="color: white; margin-right: 4px"
+        (click)="editWallet()"
+      >
+        <i class="fa fa-edit"></i> Edit
+      </a>
+      <a
+        href="javascript:;"
+        class="btn bg-danger"
+        style="color: white"
+        (click)="removeWallet()"
+      >
+        <i class="fa fa-remove"></i> Remove
+      </a>
+    </div>
+  </div>
+
+  <hr />
+
+  <app-tabs [options]="tabs"></app-tabs>
+
+  @if(selectedSection == 'Symbols') {
+  <div class="row mb-3">
+    <app-wallet-symbols-viewer
+      [dataSource]="selectedWallet?.symbols!"
+    ></app-wallet-symbols-viewer>
+  </div>
+  }
+</div>

@@ -1,0 +1,96 @@
+<form [formGroup]="walletSymbolsForm">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Quantity</th>
+        <th>Average Price</th>
+        <th>Expected Quantity</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody formArrayName="walletSymbols">
+      <tr
+        *ngFor="let walletSymbol of walletSymbolsArray.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <td>
+          <select class="form-control" formControlName="symbol">
+            <option *ngFor="let symbol of symbols" [value]="symbol.name">
+              {{ symbol.name }}
+            </option>
+          </select>
+          <div
+            *ngIf="
+              walletSymbol.get('symbol')?.invalid &&
+              walletSymbol.get('symbol')?.touched
+            "
+            class="text-danger"
+          >
+            Symbol is required.
+          </div>
+        </td>
+        <td>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="quantity"
+          />
+          <div
+            *ngIf="
+              walletSymbol.get('quantity')?.invalid &&
+              walletSymbol.get('quantity')?.touched
+            "
+            class="text-danger"
+          >
+            Quantity is required.
+          </div>
+        </td>
+        <td>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="averagePrice"
+          />
+          <div
+            *ngIf="
+              walletSymbol.get('averagePrice')?.invalid &&
+              walletSymbol.get('averagePrice')?.touched
+            "
+            class="text-danger"
+          >
+            Average Price is required.
+          </div>
+        </td>
+        <td>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="expectedQuantity"
+          />
+          <div
+            *ngIf="
+              walletSymbol.get('expectedQuantity')?.invalid &&
+              walletSymbol.get('expectedQuantity')?.touched
+            "
+            class="text-danger"
+          >
+            Expected Quantity is required.
+          </div>
+        </td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="removeWalletSymbol(i)"
+          >
+            <i class="fa fa-remove"></i> Remove
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" class="btn btn-primary" (click)="addWalletSymbol()">
+    <i class="fa fa-plus"></i> Add Symbol
+  </button>
+</form>

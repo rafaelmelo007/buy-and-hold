@@ -1,0 +1,36 @@
+<div class="container-fluid" style="padding: 10px" *ngIf="walletForm">
+  <h3><i class="fa fa-briefcase"></i> Edit Wallet</h3>
+  <form [formGroup]="walletForm" (ngSubmit)="onSubmit()">
+    <div class="row" *ngIf="wallets">
+      <div class="col">
+        <select class="form-control" disabled="true">
+          @for(wallet of wallets; track wallet) {
+          <option
+            [value]="wallet.walletId"
+            [selected]="selectedWalletId == wallet.walletId"
+          >
+            {{ wallet.name }}
+          </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <hr />
+
+    <app-tabs [options]="tabs"></app-tabs>
+
+    @if(selectedSection == 'Symbols') {
+
+    <div class="row mb-3">
+      <label class="col-sm-4 col-form-label">Symbols:</label>
+      <app-wallet-symbols-editor></app-wallet-symbols-editor>
+    </div>
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn bg-primary text-white">
+        <i class="fa fa-save"></i> Save Changes
+      </button>
+    </div>
+    }
+  </form>
+</div>
